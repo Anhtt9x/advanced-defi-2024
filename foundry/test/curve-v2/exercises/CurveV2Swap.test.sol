@@ -31,7 +31,7 @@ contract CurveV2SwapTest is Test {
     function test_get_dy() public {
         // Calculate swap from WETH to USDC
         // Write your code here
-        uint256 dy = 0;
+        uint256 dy = pool.get_dy(2,0, 1e18);
 
         console2.log("dy %e", dy);
         assertGt(dy, 0, "dy = 0");
@@ -42,6 +42,14 @@ contract CurveV2SwapTest is Test {
     function test_exchange() public {
         // Swap WETH to USDC
         // Write your code here
+        pool.exchange({
+            i:2,
+            j:0,
+            dx:1e18,
+            min_dy:1,
+            use_eth:false,
+            receiver:address(this)
+        });
 
         uint256 bal = usdc.balanceOf(address(this));
         console2.log("USDC balance %e", bal);
