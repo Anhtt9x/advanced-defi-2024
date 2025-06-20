@@ -41,6 +41,15 @@ contract CurveV2RemoveLiquidityTest is Test {
         uint256 wethBalBefore = weth.balanceOf(address(this));
 
         // Write your code here
+        uint256 lpBalance = pool.balanceOf(address(this));
+        uint256[3] memory minAmounts = [uint256(1), uint256(1), uint256(1)];
+        pool.remove_liquidity({
+            lpBal: lpBalance,
+            min_amounts: minAmounts,
+            use_eth: false,
+            receiver: address(this),
+            claim_admin_fees: false
+        });
 
         assertEq(pool.balanceOf(address(this)), 0, "3CRV balance > 0");
 
@@ -67,6 +76,15 @@ contract CurveV2RemoveLiquidityTest is Test {
         uint256 wethBalBefore = weth.balanceOf(address(this));
 
         // Write your code here
+        uint256 lpBalance = pool.balanceOf(address(this));
+        pool.remove_liquidity_one_coin({
+            lpBal: lpBalance,
+            i: 0, // 0 for USDC
+            min_amount: 1,
+            use_eth: false,
+            receiver: address(this),
+            claim_admin_fees: false
+        });
 
         assertEq(pool.balanceOf(address(this)), 0, "3CRV balance > 0");
 

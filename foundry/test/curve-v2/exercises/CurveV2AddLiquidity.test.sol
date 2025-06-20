@@ -29,6 +29,13 @@ contract CurveV2AddLiquidityTest is Test {
     // Add 1,000 USDC of liquidity to the pool contract
     function test_add_liquidity() public {
         // Write your code here
+        uint256[3] memory amounts = [uint256(1000 * 1e6), uint256(0), uint256(0)];
+        pool.add_liquidity({
+            amounts: amounts,
+            min_lp: 1,
+            use_eth: false,
+            receiver: address(this)
+        });
 
         uint256 lpBal = pool.balanceOf(address(this));
         assertGt(lpBal, 0, "lp = 0");
