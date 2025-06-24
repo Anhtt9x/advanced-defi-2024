@@ -70,6 +70,18 @@ contract UniswapV2SwapTest is Test {
 
         // Write your code here
         // Don’t change any other code
+        vm.prank(user);
+        router.swapExactTokensForTokens({
+            amountOut: amountOut,
+            amountInMax: amountInMax,
+            path: path,
+            to: user,
+            deadline: block.timestamp
+        });
+
+        console2.log("WETH",amounts[0]);
+        console2.log("DAI",amounts[1]);
+        console2.log("MKR",amounts[2]);
 
         assertEq(mkr.balanceOf(user), amountOut, "MKR balance of user");
     }
