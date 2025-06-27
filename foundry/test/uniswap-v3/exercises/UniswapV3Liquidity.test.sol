@@ -113,8 +113,35 @@ contract UniswapV3LiquidityTest is Test {
     // - Set recipient of NFT (that represents the ownership of this position) to this contract.
     function test_mint() public {
         // Write your code here
-        (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1) =
-            (0, 0, 0, 0);
+        struct MintParams {
+            address token0;
+            address token1;
+            uint24 fee;
+            int24 tickLower;
+            int24 tickUpper;
+            uint256 amount0Desired;
+            uint256 amount1Desired;
+            uint256 amount0Min;
+            uint256 amount1Min;
+            address recipient;
+            uint256 deadline;
+        };
+
+        (uint256 tokenId, uint128 liquidity, uint256 amount0, uint256 amount1) = manager.mint(
+            INonfungiblePositionManager.MintParams({
+                token0: DAI,
+                token1: WETH,
+                fee: POOL_FEE,
+                tickLower: MIN_TICK / TICK_SPACING * TICK_SPACING,
+                tickUpper: MAX_TICK / TICK_SPACING * TICK_SPACING,
+                amount0Desired: 1000 * 1e18, // Choose any amount <= 3000 DAI
+                amount1Desired: 1e18, // Choose any amount <= 3 WETH
+                amount0Min: 0,
+                amount1Min: 0,
+                recipient: address(this),
+                deadline: block.timestamp
+            })
+        );
 
         console2.log("Amount 0 added %e", amount0);
         console2.log("Amount 1 added %e", amount1);
@@ -137,7 +164,16 @@ contract UniswapV3LiquidityTest is Test {
         Position memory p0 = getPosition(tokenId);
 
         // Write your code here
-        (uint256 liquidityDelta, uint256 amount0, uint256 amount1) = (0, 0, 0);
+        (uint256 liquidityDelta, uint256 amount0, uint256 amount1) = manager.increaseLiquidity(
+            INonfungiblePositionManager.IncreaseLiquidityParams({
+                tokenId: tokenId,
+                amount0Desired: 500 * 1e18, // Choose any amount <= remaining DAI balance
+                amount1Desired: 0.5 * 1e18, // Choose any amount <= remaining WETH balance
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp
+            })
+        );
 
         console2.log("Amount 0 added %e", amount0);
         console2.log("Amount 1 added %e", amount1);
@@ -155,7 +191,15 @@ contract UniswapV3LiquidityTest is Test {
         Position memory p0 = getPosition(tokenId);
 
         // Write your code here
-        (uint256 amount0, uint256 amount1) = (0, 0);
+        (uint256 amount0, uint256 amount1) = manager.decreaseLiquidity(
+            INonfungiblePositionManager.DecreaseLiquidityParams({
+                tokenId: tokenId,
+                liquidity: p0.liquidity, // Decrease half of the liquidity
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp
+            })
+        );
 
         console2.log("Amount 0 decreased %e", amount0);
         console2.log("Amount 1 decreased %e", amount1);
@@ -175,8 +219,25 @@ contract UniswapV3LiquidityTest is Test {
         uint256 tokenId = mint();
         Position memory p0 = getPosition(tokenId);
 
+        manager.decreaseLiquidity(
+            INonfungiblePositionManager.DecreaseLiquidityParams({
+                tokenId: tokenId,
+                liquidity: p0.liquidity, // Decrease half of the liquidity
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp
+            })
+        );
+
         // Write your code here
-        (uint256 amount0, uint256 amount1) = (0, 0);
+        (uint256 amount0, uint256 amount1) = manager.collect(
+            INonfungiblePositionManager.CollectParams({
+                tokenId: tokenId,
+                recipient: address(this),
+                amount0Max: type(uint128).max,
+                amount1Max: type(uint128).max
+            })
+        );
 
         console2.log("--- collect ---");
         console2.log("Amount 0 collected %e", amount0);
